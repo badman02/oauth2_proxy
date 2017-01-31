@@ -43,17 +43,9 @@ func NewOIDCProvider(p *ProviderData) *OIDCProvider {
 		time.Sleep(sleep)
 	}
 
-	u, err := url.Parse(cfg.TokenEndpoint)
-	if err != nil {
-		panic(err)
-	}
-	p.ValidateURL = u
-	u, err = url.Parse(cfg.AuthEndpoint)
-	if err != nil {
-		panic(err)
-	}
-	p.RedeemURL = u
-	p.Scope = "email"
+	p.ValidateURL = cfg.TokenEndpoint
+	p.RedeemURL = cfg.AuthEndpoint
+	//p.Scope = "email"
 
 	ccfg := oidc.ClientConfig{
 		HTTPClient:     httpClient,
@@ -87,6 +79,7 @@ func NewOIDCProvider(p *ProviderData) *OIDCProvider {
 }
 
 func (p *OIDCProvider) Redeem(redirectURL, code string) (s *SessionState, err error) {
+	p.clientConfig.RedirectURL = redirectURL
 	c, err := oidc.NewClient(p.clientConfig)
 	if err != nil {
 		log.Fatalf("Unable to create Client: %v", err)
@@ -104,11 +97,13 @@ func (p *OIDCProvider) Redeem(redirectURL, code string) (s *SessionState, err er
 		return nil, err
 	}
 
+	log.Println(claims)
+
 	s = &SessionState{
 		AccessToken:  tok.Data(),
 		RefreshToken: tok.Data(),
 		ExpiresOn:    time.Now().Add(time.Duration(claims["exp"].(float64)) * time.Second).Truncate(time.Second),
-		Email:        claims["email"].(string),
+		Email:        claims["unique_name"].(string),
 	}
 
 	return

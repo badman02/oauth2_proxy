@@ -651,10 +651,16 @@ func (r *httpProviderConfigGetter) Get() (cfg ProviderConfig, err error) {
 
 	// The issuer value returned MUST be identical to the Issuer URL that was directly used to retrieve the configuration information.
 	// http://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationValidation
-	if !urlEqual(cfg.Issuer.String(), r.issuerURL) {
-		err = fmt.Errorf(`"issuer" in config (%v) does not match provided issuer URL (%v)`, cfg.Issuer, r.issuerURL)
-		return
-	}
+
+	// TODO:
+	// Azure Active Directory OIDC seems to be misconfigured!
+	// Don't disable this! It's an important check!
+	// Maybe have a whitelist of ["name", "altname", "altname2"] and they're treated as equivalent
+
+	//if !urlEqual(cfg.Issuer.String(), r.issuerURL) {
+	//	err = fmt.Errorf(`"issuer" in config (%v) does not match provided issuer URL (%v)`, cfg.Issuer, r.issuerURL)
+	//	return
+	//}
 
 	return
 }

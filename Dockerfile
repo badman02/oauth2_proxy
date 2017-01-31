@@ -8,6 +8,7 @@ ADD . $GOPATH/src/github.com/bitly/oauth2_proxy
 
 WORKDIR $GOPATH/src/github.com/bitly/oauth2_proxy
 
-RUN godep go install github.com/bitly/oauth2_proxy
+#RUN godep go install github.com/bitly/oauth2_proxy
+RUN go install github.com/bitly/oauth2_proxy
 
 ENTRYPOINT ["oauth2_proxy"]

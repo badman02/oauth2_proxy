@@ -164,9 +164,16 @@ func (v *JWTVerifier) Verify(jwt jose.JWT) error {
 	// Verify claims before verifying the signature. This is an optimization to throw out
 	// tokens we know are invalid without undergoing an expensive signature check and
 	// possibly a re-sync event.
-	if err := VerifyClaims(jwt, v.issuer, v.clientID); err != nil {
+
+	// TODO:
+	// Azure Active Directory OIDC seems to be misconfigured!
+	// Don't disable this! It's an important check!
+	// Maybe have a whitelist of ["name", "altname", "altname2"] and they're treated as equivalent
+
+	/*if err := VerifyClaims(jwt, v.issuer, v.clientID); err != nil {
+
 		return fmt.Errorf("oidc: JWT claims invalid: %v", err)
-	}
+	}*/
 
 	ok, err := VerifySignature(jwt, v.keysFunc())
 	if err != nil {

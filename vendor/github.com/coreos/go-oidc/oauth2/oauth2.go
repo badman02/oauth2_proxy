@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"mime"
 	"net/http"
 	"net/url"
@@ -255,9 +256,18 @@ func (c *Client) UserCredsToken(username, password string) (result TokenResponse
 // If 'grantType' == GrantTypeRefreshToken, then 'value' should be the refresh token.
 func (c *Client) RequestToken(grantType, value string) (result TokenResponse, err error) {
 	v := c.commonURLValues()
+	log.Printf("................... %v", c.redirectURL.String())
+	log.Printf("................... %v", c.tokenURL.String())
+	log.Printf("................... %v", value)
+	log.Printf("................... %v", c.creds.Secret)
 
+	// TODO:
+	//c.redirectURL, _ = url.Parse("https://test1.prow.azure-containers.io/oauth2/callback")
+	//c.tokenURL, _ = url.Parse("https://sts.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/v2.0/token")
+	//	c.tokenURL, _ = url.Parse("https://login.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/v2.0/token")
 	v.Set("grant_type", grantType)
 	v.Set("client_secret", c.creds.Secret)
+	v.Set("redirect_uri", c.redirectURL.String())
 	switch grantType {
 	case GrantTypeAuthCode:
 		v.Set("code", value)
