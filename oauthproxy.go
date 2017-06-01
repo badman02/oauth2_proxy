@@ -416,7 +416,7 @@ func (p *OAuthProxy) GetRedirect(req *http.Request) (redirect string, err error)
 	}
 
 	redirect = req.Form.Get("rd")
-	if redirect == "" || !strings.HasPrefix(redirect, "/") || strings.HasPrefix(redirect, "//") {
+	if redirect == "" {
 		redirect = "/"
 	}
 
@@ -510,6 +510,8 @@ func (p *OAuthProxy) OAuthStart(rw http.ResponseWriter, req *http.Request) {
 func (p *OAuthProxy) OAuthCallback(rw http.ResponseWriter, req *http.Request) {
 	remoteAddr := getRemoteAddr(req)
 
+	log.Println("OAUTH CB:", req.URL)
+
 	// finish the oauth cycle
 	err := req.ParseForm()
 	if err != nil {
@@ -546,10 +548,6 @@ func (p *OAuthProxy) OAuthCallback(rw http.ResponseWriter, req *http.Request) {
 		log.Printf("%s csrf token mismatch, potential attack", remoteAddr)
 		p.ErrorPage(rw, 403, "Permission Denied", "csrf failed")
 		return
-	}
-
-	if !strings.HasPrefix(redirect, "/") || strings.HasPrefix(redirect, "//") {
-		redirect = "/"
 	}
 
 	// set cookie, or deny
